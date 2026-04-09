@@ -39,9 +39,11 @@ body {
 .controls {
   display: flex;
   justify-content: center;
+  gap: 10px;
   margin-bottom: 10px;
 }
 
+.pause-button,
 .end-game-button {
   border: 0;
   border-radius: 999px;
@@ -54,6 +56,13 @@ body {
   box-shadow: 0 10px 24px rgba(53, 92, 74, 0.2);
 }
 
+.pause-button {
+  color: var(--accent);
+  background: #fffdf8;
+  border: 1px solid rgba(53, 92, 74, 0.2);
+}
+
+.pause-button:focus-visible,
 .end-game-button:focus-visible {
   outline: 3px solid rgba(53, 92, 74, 0.35);
   outline-offset: 4px;

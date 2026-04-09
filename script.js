@@ -1,5 +1,6 @@
 const cards = Array.from(document.querySelectorAll(".timer-card"));
 const wakeStatus = document.querySelector("[data-wake-status]");
+const pauseButton = document.querySelector("[data-pause]");
 const endGameButton = document.querySelector("[data-end-game]");
 const summary = document.querySelector("[data-summary]");
 const summaryGrid = document.querySelector("[data-summary-grid]");
@@ -19,6 +20,7 @@ let turnStartedAt = null;
 let hasStarted = false;
 let wakeLock = null;
 let isGameOver = false;
+let isPaused = false;
 
 function setWakeStatus(message) {
   if (wakeStatus) {
@@ -57,8 +59,16 @@ function render() {
   players.forEach((player) => {
     player.timeElement.textContent = formatTime(player.elapsedMs);
     player.turnElement.textContent = `${player.name}'s turn`;
-    player.card.classList.toggle("active", hasStarted && !isGameOver && player === activePlayer);
+    player.card.classList.toggle(
+      "active",
+      hasStarted && !isGameOver && !isPaused && player === activePlayer
+    );
   });
+
+  if (pauseButton) {
+    pauseButton.textContent = isPaused ? "Resume" : "Pause";
+    pauseButton.disabled = !hasStarted || isGameOver;
+  }
 }
 
 function recordTurn(player, duration) {
@@ -127,11 +137,14 @@ function setActivePlayer(nextPlayer) {
   }
 
   const now = Date.now();
-  recordTurn(activePlayer, now - turnStartedAt);
-  activePlayer.elapsedMs += now - lastTick;
+  if (!isPaused) {
+    recordTurn(activePlayer, now - turnStartedAt);
+    activePlayer.elapsedMs += now - lastTick;
+  }
   activePlayer = nextPlayer;
   lastTick = now;
   turnStartedAt = now;
+  isPaused = false;
   render();
 }
 
@@ -142,7 +155,7 @@ cards.forEach((card, index) => {
 });
 
 setInterval(() => {
-  if (!hasStarted || isGameOver) {
+  if (!hasStarted || isGameOver || isPaused) {
     return;
   }
 
@@ -160,6 +173,30 @@ document.addEventListener("visibilitychange", () => {
   }
 });
 
+pauseButton.addEventListener("click", async () => {
+  if (!hasStarted || isGameOver) {
+    return;
+  }
+
+  if (isPaused) {
+    lastTick = Date.now();
+    turnStartedAt = lastTick;
+    isPaused = false;
+    requestWakeLock();
+    setWakeStatus("Timer resumed.");
+    render();
+    return;
+  }
+
+  const now = Date.now();
+  activePlayer.elapsedMs += now - lastTick;
+  lastTick = now;
+  isPaused = true;
+  await releaseWakeLock();
+  setWakeStatus("Timer paused.");
+  render();
+});
+
 endGameButton.addEventListener("click", async () => {
   if (!hasStarted || isGameOver) {
     renderSummary();
@@ -167,8 +204,10 @@ endGameButton.addEventListener("click", async () => {
   }
 
   const now = Date.now();
-  activePlayer.elapsedMs += now - lastTick;
-  recordTurn(activePlayer, now - turnStartedAt);
+  if (!isPaused) {
+    activePlayer.elapsedMs += now - lastTick;
+    recordTurn(activePlayer, now - turnStartedAt);
+  }
   lastTick = now;
   isGameOver = true;
   render();
