@@ -1,0 +1,101 @@
+:root {
+  --page-bg: linear-gradient(160deg, #f7f1e3 0%, #fefcf7 45%, #d7e8d4 100%);
+  --card-bg: rgba(255, 252, 245, 0.9);
+  --card-border: rgba(63, 90, 72, 0.18);
+  --card-shadow: 0 18px 40px rgba(68, 78, 60, 0.16);
+  --text-main: #1f2a1f;
+  --text-muted: #5d6d5d;
+  --accent: #355c4a;
+  --accent-soft: #d9eadf;
+  --active-glow: rgba(53, 92, 74, 0.22);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  font-family: Georgia, "Times New Roman", serif;
+  background: var(--page-bg);
+  color: var(--text-main);
+}
+
+.app {
+  width: min(100%, 980px);
+}
+
+.timer-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.timer-card {
+  min-height: 260px;
+  padding: 28px;
+  border: 1px solid var(--card-border);
+  border-radius: 24px;
+  background: var(--card-bg);
+  box-shadow: var(--card-shadow);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  text-align: center;
+  color: inherit;
+  cursor: pointer;
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease,
+    background-color 180ms ease;
+  backdrop-filter: blur(10px);
+}
+
+.timer-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 22px 44px rgba(68, 78, 60, 0.2);
+}
+
+.timer-card:focus-visible {
+  outline: 3px solid rgba(53, 92, 74, 0.35);
+  outline-offset: 4px;
+}
+
+.timer-card.active {
+  border-color: rgba(53, 92, 74, 0.45);
+  background: linear-gradient(180deg, #fffdf8 0%, var(--accent-soft) 100%);
+  box-shadow: 0 22px 54px var(--active-glow);
+}
+
+.player-name {
+  font-size: clamp(1.8rem, 3vw, 2.5rem);
+  letter-spacing: 0.04em;
+}
+
+.player-time {
+  font-size: clamp(2rem, 5vw, 3.6rem);
+  font-variant-numeric: tabular-nums;
+}
+
+.player-turn {
+  font-size: 1.05rem;
+  color: var(--text-muted);
+}
+
+.timer-card.active .player-turn {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+@media (max-width: 720px) {
+  .timer-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .timer-card {
+    min-height: 220px;
+  }
+}
