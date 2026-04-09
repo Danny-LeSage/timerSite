@@ -9,6 +9,9 @@
 <body>
   <main class="app">
     <p class="wake-status" data-wake-status aria-live="polite">Tap the page once to enable keep awake on supported devices.</p>
+    <div class="controls">
+      <button class="end-game-button" data-end-game type="button">End Game</button>
+    </div>
     <section class="timer-grid" aria-label="Player timers">
       <button class="timer-card active" data-player="Adam" type="button">
         <span class="player-name">Adam</span>
@@ -33,6 +36,11 @@
         <span class="player-time" data-time>00:00:00</span>
         <span class="player-turn" data-turn>Peter's turn</span>
       </button>
+    </section>
+
+    <section class="summary hidden" data-summary aria-live="polite">
+      <h2 class="summary-title">Game Recap</h2>
+      <div class="summary-grid" data-summary-grid></div>
     </section>
   </main>
 
