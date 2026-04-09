@@ -1,4 +1,5 @@
 const cards = Array.from(document.querySelectorAll(".timer-card"));
+const wakeStatus = document.querySelector("[data-wake-status]");
 
 const players = cards.map((card) => ({
   name: card.dataset.player,
@@ -11,6 +12,32 @@ const players = cards.map((card) => ({
 let activePlayer = players[0];
 let lastTick = Date.now();
 let hasStarted = false;
+let wakeLock = null;
+
+function setWakeStatus(message) {
+  if (wakeStatus) {
+    wakeStatus.textContent = message;
+  }
+}
+
+async function requestWakeLock() {
+  if (!("wakeLock" in navigator)) {
+    setWakeStatus("Keep awake is not supported in this browser.");
+    return;
+  }
+
+  try {
+    wakeLock = await navigator.wakeLock.request("screen");
+    setWakeStatus("Keep awake is on while this page stays open.");
+
+    wakeLock.addEventListener("release", () => {
+      wakeLock = null;
+      setWakeStatus("Keep awake was released. Tap any player to turn it back on.");
+    });
+  } catch (error) {
+    setWakeStatus("Keep awake could not be enabled. Your browser may require another tap.");
+  }
+}
 
 function formatTime(milliseconds) {
   const totalSeconds = Math.floor(milliseconds / 1000);
@@ -33,6 +60,7 @@ function setActivePlayer(nextPlayer) {
     activePlayer = nextPlayer;
     lastTick = Date.now();
     hasStarted = true;
+    requestWakeLock();
     render();
     return;
   }
@@ -66,3 +94,9 @@ setInterval(() => {
 }, 250);
 
 render();
+
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible" && hasStarted && !wakeLock) {
+    requestWakeLock();
+  }
+});

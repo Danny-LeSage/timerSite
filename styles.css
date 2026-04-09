@@ -29,6 +29,13 @@ body {
   width: min(100%, 980px);
 }
 
+.wake-status {
+  margin: 0 0 18px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.98rem;
+}
+
 .timer-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
