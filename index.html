@@ -11,9 +11,15 @@
     <p class="wake-status" data-wake-status aria-live="polite">Tap the page once to enable keep awake on supported devices.</p>
     <div class="controls">
       <button class="pause-button" data-pause type="button">Pause</button>
+      <button class="next-button" data-next-player type="button">Next Player</button>
+      <button class="reorder-button" data-reorder type="button" aria-pressed="false">Reorder</button>
       <button class="end-game-button" data-end-game type="button">End Game</button>
     </div>
-    <section class="timer-grid" aria-label="Player timers">
+    <section class="game-clock" data-game-clock aria-label="Game clock">
+      <span class="game-clock-label" data-game-clock-label>Game Time</span>
+      <span class="game-clock-time" data-game-time>00:00:00</span>
+    </section>
+    <section class="timer-grid" data-timer-grid aria-label="Player timers">
       <button class="timer-card active" data-player="Adam" type="button">
         <span class="player-name">Adam</span>
         <span class="player-time" data-time>00:00:00</span>
@@ -41,6 +47,7 @@
 
     <section class="summary hidden" data-summary aria-live="polite">
       <h2 class="summary-title">Game Recap</h2>
+      <div class="summary-overview" data-summary-overview></div>
       <div class="summary-grid" data-summary-grid></div>
     </section>
   </main>

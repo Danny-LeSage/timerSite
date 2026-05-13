@@ -38,12 +38,15 @@ body {
 
 .controls {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
   gap: 10px;
   margin-bottom: 10px;
 }
 
 .pause-button,
+.next-button,
+.reorder-button,
 .end-game-button {
   border: 0;
   border-radius: 999px;
@@ -56,16 +59,49 @@ body {
   box-shadow: 0 10px 24px rgba(53, 92, 74, 0.2);
 }
 
-.pause-button {
+.pause-button,
+.reorder-button {
   color: var(--accent);
   background: #fffdf8;
   border: 1px solid rgba(53, 92, 74, 0.2);
 }
 
 .pause-button:focus-visible,
+.next-button:focus-visible,
+.reorder-button:focus-visible,
 .end-game-button:focus-visible {
   outline: 3px solid rgba(53, 92, 74, 0.35);
   outline-offset: 4px;
+}
+
+.game-clock {
+  margin-bottom: 10px;
+  padding: 10px 14px;
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  background: rgba(255, 252, 245, 0.76);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  box-shadow: 0 10px 24px rgba(68, 78, 60, 0.08);
+}
+
+.game-clock.paused {
+  border-color: rgba(53, 92, 74, 0.35);
+  background: var(--accent-soft);
+}
+
+.game-clock-label {
+  color: var(--text-muted);
+  font-size: 0.86rem;
+}
+
+.game-clock-time {
+  color: var(--accent);
+  font-size: 1.15rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
 }
 
 .timer-grid {
@@ -75,6 +111,7 @@ body {
 }
 
 .timer-card {
+  position: relative;
   min-height: 170px;
   padding: 16px;
   border: 1px solid var(--card-border);
@@ -88,8 +125,10 @@ body {
   text-align: center;
   color: inherit;
   cursor: pointer;
+  touch-action: manipulation;
+  user-select: none;
   transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease,
-    background-color 180ms ease;
+    background-color 180ms ease, opacity 180ms ease;
   backdrop-filter: blur(10px);
 }
 
@@ -129,6 +168,51 @@ body {
   font-weight: 700;
 }
 
+.drag-handle {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+  background-image: radial-gradient(circle, rgba(53, 92, 74, 0.7) 1.5px, transparent 2px);
+  background-position: 3px 3px;
+  background-size: 7px 7px;
+  transition: opacity 180ms ease;
+}
+
+.timer-grid.is-reordering .timer-card {
+  cursor: grab;
+  touch-action: none;
+}
+
+.timer-grid.is-reordering .timer-card:hover {
+  transform: translateY(-2px);
+}
+
+.timer-grid.is-reordering .timer-card:active,
+.timer-grid.is-reordering .timer-card.dragging {
+  cursor: grabbing;
+}
+
+.timer-grid.is-reordering .drag-handle {
+  opacity: 1;
+}
+
+.timer-grid.is-dragging .timer-card {
+  transition: transform 140ms ease, box-shadow 140ms ease, border-color 140ms ease,
+    background-color 140ms ease, opacity 140ms ease;
+}
+
+.timer-card.dragging {
+  opacity: 0.54;
+  pointer-events: none;
+  transform: scale(0.98);
+  box-shadow: 0 16px 32px rgba(68, 78, 60, 0.14);
+}
+
 .summary {
   margin-top: 12px;
   padding: 16px;
@@ -146,6 +230,33 @@ body {
   margin: 0 0 12px;
   text-align: center;
   font-size: 1.2rem;
+}
+
+.summary-overview {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.summary-total-card {
+  padding: 12px;
+  border-radius: 14px;
+  background: #fffdf8;
+  border: 1px solid var(--card-border);
+}
+
+.summary-total-label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+.summary-total-value {
+  color: var(--accent);
+  font-size: 1rem;
+  font-variant-numeric: tabular-nums;
 }
 
 .summary-grid {
@@ -174,67 +285,126 @@ body {
 
 @media (max-width: 720px) {
   body {
-    padding: 8px;
+    padding: 6px;
+  }
+
+  .app {
+    width: 100%;
   }
 
   .wake-status {
+    margin-bottom: 6px;
+    font-size: 0.72rem;
+    line-height: 1.25;
+  }
+
+  .controls {
+    gap: 8px;
     margin-bottom: 8px;
-    font-size: 0.76rem;
+  }
+
+  .pause-button,
+  .next-button,
+  .reorder-button,
+  .end-game-button {
+    flex: 1 1 calc(50% - 8px);
+    min-width: 0;
+    padding: 8px 10px;
+    font-size: 0.78rem;
+  }
+
+  .game-clock {
+    margin-bottom: 6px;
+    padding: 8px 10px;
+    border-radius: 12px;
+  }
+
+  .game-clock-label {
+    font-size: 0.72rem;
+  }
+
+  .game-clock-time {
+    font-size: 0.95rem;
   }
 
   .timer-grid {
     grid-template-columns: 1fr;
-    gap: 8px;
+    gap: 6px;
   }
 
   .timer-card {
-    min-height: 135px;
-    padding: 10px;
-    border-radius: 14px;
+    min-height: 112px;
+    padding: 8px 10px;
+    border-radius: 12px;
+  }
+
+  .drag-handle {
+    top: 8px;
+    right: 8px;
+    width: 18px;
+    height: 18px;
+    background-position: 2px 2px;
+    background-size: 6px 6px;
   }
 
   .player-name {
-    font-size: 1rem;
+    font-size: 0.95rem;
   }
 
   .player-time {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
   }
 
   .player-turn {
-    font-size: 0.72rem;
-  }
-
-  .end-game-button {
-    padding: 8px 14px;
-    font-size: 0.8rem;
+    font-size: 0.68rem;
   }
 
   .summary {
-    margin-top: 10px;
-    padding: 12px;
-    border-radius: 14px;
-  }
-
-  .summary-title {
-    margin-bottom: 10px;
-    font-size: 1rem;
-  }
-
-  .summary-grid {
-    gap: 8px;
-  }
-
-  .summary-card {
+    margin-top: 8px;
     padding: 10px;
     border-radius: 12px;
   }
 
+  .summary-title {
+    margin-bottom: 8px;
+    font-size: 0.95rem;
+  }
+
+  .summary-overview {
+    grid-template-columns: 1fr;
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+
+  .summary-total-card {
+    padding: 8px;
+    border-radius: 10px;
+  }
+
+  .summary-total-label {
+    margin-bottom: 4px;
+    font-size: 0.68rem;
+  }
+
+  .summary-total-value {
+    font-size: 0.84rem;
+  }
+
+  .summary-grid {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .summary-card {
+    padding: 8px;
+    border-radius: 10px;
+  }
+
   .summary-name {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
   }
 
   .summary-stat {
-    font-size: 0.74rem;
+    font-size: 0.7rem;
   }
 }
